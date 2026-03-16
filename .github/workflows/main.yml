@@ -1,17 +1,21 @@
-name: Washer Notifier
+name: Washer Notifier 24/7
 
 on:
   schedule:
-    # Chạy mỗi 5 phút (GitHub Actions không cho phép chạy mỗi 1 phút trên schedule)
-    - cron: '*/5 * * * *'
-  workflow_dispatch: # Cho phép bạn bấm nút chạy thủ công để test
+    - cron: '*/5 * * * *' # Chạy mỗi 5 phút
+  workflow_dispatch: # Để bạn bấm nút chạy thử trên web
 
 jobs:
-  check-status:
+  monitor-washer:
     runs-on: ubuntu-latest
+    # Tránh việc nhiều workflow chạy chồng chéo nhau
+    concurrency: 
+      group: washer-monitor
+      cancel-in-progress: true
+      
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -21,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Run script
+      - name: Run Monitoring Script
         env:
           LG_PAT_TOKEN: ${{ secrets.LG_PAT_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
