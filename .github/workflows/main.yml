@@ -1,0 +1,29 @@
+name: Washer Notifier
+
+on:
+  schedule:
+    # Chạy mỗi 5 phút (GitHub Actions không cho phép chạy mỗi 1 phút trên schedule)
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Cho phép bạn bấm nút chạy thủ công để test
+
+jobs:
+  check-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run script
+        env:
+          LG_PAT_TOKEN: ${{ secrets.LG_PAT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python check_washer.py
